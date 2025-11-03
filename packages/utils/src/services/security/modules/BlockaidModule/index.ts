@@ -12,7 +12,7 @@ import type {
   TransactionScanResponse,
 } from './types'
 import { BLOCKAID_API, BLOCKAID_CLIENT_ID } from '@safe-global/utils/config/constants'
-import { numberToHex } from '@safe-global/web/src/utils/hex'
+import { numberToHex } from '@safe-global/utils/utils/hex'
 
 /** @see https://docs.blockaid.io/docs/supported-chains */
 
