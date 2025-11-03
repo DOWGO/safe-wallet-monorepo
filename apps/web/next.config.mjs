@@ -59,7 +59,7 @@ const withPWA = withPWAInit({
 const nextConfig = {
   output: 'export', // static site export
 
-  transpilePackages: ['@safe-global/store'],
+  transpilePackages: ['@safe-global/store', '@safe-global/utils'],
   images: {
     unoptimized: true,
   },
