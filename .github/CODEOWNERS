@@ -1,0 +1,16 @@
+# CODEOWNERS — Defines who must review changes to specific files
+# See: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+#
+# DOW-320: standardised across all DOWGO repos. Code-owner review is enforced by the
+# org-level branch ruleset (require_code_owner_review). Workflow/action files require
+# approval from @DOWGO/maintainers to prevent unauthorised CI/CD changes (secret
+# exposure, security-check bypass, malicious execution).
+
+# GitHub Actions workflows — REQUIRES maintainer approval
+/.github/workflows/**  @DOWGO/maintainers
+
+# GitHub Actions composite actions — REQUIRES maintainer approval
+/.github/actions/**    @DOWGO/maintainers
+
+# CODEOWNERS itself — REQUIRES maintainer approval
+/.github/CODEOWNERS    @DOWGO/maintainers
