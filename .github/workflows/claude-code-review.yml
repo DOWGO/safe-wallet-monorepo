@@ -1,0 +1,87 @@
+name: Claude Code Review
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  # ========================================================================
+  # SECURITY: Workflow Protection Check
+  # Immediately flags any modifications to GitHub Actions workflow files
+  # ========================================================================
+  workflow-protection-check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check for workflow modifications
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          echo "🔍 Checking for GitHub Actions workflow modifications..."
+
+          WORKFLOW_FILES=$(git diff --name-only "origin/$BASE_REF"...HEAD | grep '^\.github/workflows/' || true)
+
+          if [ -n "$WORKFLOW_FILES" ]; then
+            echo "⚠️  WARNING: This PR modifies GitHub Actions workflow files:"
+            echo "$WORKFLOW_FILES" | sed 's/^/  - /'
+            echo ""
+            echo "::warning::GitHub Actions workflow files modified - REQUIRES security review from code owners"
+            echo "Modified workflows must be reviewed by repository maintainers to ensure:"
+            echo "  • No security vulnerabilities are introduced"
+            echo "  • No secrets can be exposed"
+            echo "  • CI/CD integrity is maintained"
+            exit 0
+          else
+            echo "✅ No workflow files modified"
+          fi
+
+  claude-review:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+      issues: read
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Run Claude Code Review
+        id: claude-review
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: |
+            Please review pull request #${{ github.event.pull_request.number }} and provide feedback on:
+            - Code quality and best practices
+            - Potential bugs or issues
+            - Performance considerations
+            - Security concerns
+            - Test coverage
+
+            🔒 CRITICAL SECURITY CHECK:
+            If this PR modifies any files in `.github/workflows/`:
+            - Flag it with HIGH PRIORITY in your review
+            - Analyze the changes for potential security risks:
+              • Could secrets be exposed or logged?
+              • Are new permissions being requested?
+              • Could malicious code be executed?
+              • Are there bypasses of security checks?
+            - Recommend that a senior maintainer must review these changes
+            - Verify the changes align with documented workflow standards
+
+            Use the repository's CLAUDE.md for guidance on style and conventions. Be constructive and helpful in your feedback.
+
+            IMPORTANT: Use `gh pr comment ${{ github.event.pull_request.number }}` with your Bash tool to leave your review as a comment on PR #${{ github.event.pull_request.number }}. Do NOT use any other PR number.
+
+          claude_args: '--allowed-tools "Bash(gh issue view:*),Bash(gh search:*),Bash(gh issue list:*),Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh pr list:*)"'
