@@ -1,16 +1,15 @@
-# CODEOWNERS — Defines who must review changes to specific files
-# See: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+# CODEOWNERS — who must review changes in this repository.
 #
-# DOW-320: standardised across all DOWGO repos. Code-owner review is enforced by the
-# org-level branch ruleset (require_code_owner_review). Workflow/action files require
-# approval from @DOWGO/maintainers to prevent unauthorised CI/CD changes (secret
-# exposure, security-check bypass, malicious execution).
+# DOW-418: review belongs to @DOWGO/dwg-reviewers, code to @DOWGO/dwg-engineers. The two teams
+# are disjoint on purpose: GitHub never requests review from a pull request's own author, so the
+# separation enforces itself as long as no engineer sits in dwg-reviewers.
+#
+# Code-owner review is required by the org branch ruleset (DOW-320). That control was inert here
+# until DOW-418: this file named @DOWGO/maintainers, a team without write access, which GitHub
+# silently ignores. A code owner MUST have write access to the repository.
+#
+# One catch-all covers every file, so every pull request gets dwg-reviewers requested
+# automatically. Path-specific rules naming the same team would be no-ops — add one only when a
+# path needs a *different* owner.
 
-# GitHub Actions workflows — REQUIRES maintainer approval
-/.github/workflows/**  @DOWGO/maintainers
-
-# GitHub Actions composite actions — REQUIRES maintainer approval
-/.github/actions/**    @DOWGO/maintainers
-
-# CODEOWNERS itself — REQUIRES maintainer approval
-/.github/CODEOWNERS    @DOWGO/maintainers
+*  @DOWGO/dwg-reviewers
